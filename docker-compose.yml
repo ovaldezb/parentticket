@@ -1,0 +1,59 @@
+version: '3.8'
+services:
+  registry-discovery:
+    container_name: id-eureka
+    image: ga/ms-eurekaserver:1.0.0-SNAPSHOT
+    ports:
+      - 8761:8761
+    environment:
+      - JAVA_OPTS=
+        -Xms256M
+        -Xmx256M
+  
+  configuration:
+    container_name: id-config
+    image: ga/ms-configserver:0.0.1-SNAPSHOT
+    volumes:
+      - ./config-server-repo:/tmp/config-server-repo
+    environment:
+      - JAVA_OPTS=
+        -Xms256M
+        -Xmx256M
+        -DEUREKA_SERVER=http://registry-discovery:8761/eureka
+        -DLOCAL_REPOSITORY=/tmp/config-server-repo
+    depends_on:
+      - registry-discovery
+    ports:
+      - 8081:8081
+      
+  admin-service:
+    container_name: id-admin
+    image: ga/ms-adminserver:0.0.1-SNAPSHOT
+    environment:
+      - JAVA_OPTS=
+        -Xms256M
+        -Xmx256M
+        -DEUREKA_SERVER=http://registry-discovery:8761/eureka
+    depends_on:
+      - registry-discovery
+    ports:
+      - 8762:8762
+     
+  gateway:
+    container_name: id-gateway
+    image: ga/ms-gateway:0.0.1-SNAPSHOT
+    environment:
+      - JAVA_OPTS=
+        -Xms256M
+        -Xmx256M
+        -DEUREKA_SERVER=http://registry-discovery:8761/eureka
+    depends_on:
+      - registry-discovery
+    ports:
+      - 8090:8090
+      
+  
+      
+    
+    
+    
